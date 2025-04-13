@@ -1,21 +1,34 @@
 pipeline {
     agent any
+
+    environment {
+        VENV = 'venv'
+    }
+
     stages {
         stage('Checkout SCM') {
             steps {
                 checkout scm
             }
         }
+
         stage('Set up Virtual Environment') {
             steps {
-                sh 'python3 -m venv venv' // Create virtual environment
-                sh './venv/bin/pip install --upgrade pip' // Upgrade pip
-                sh './venv/bin/pip install -r requirements.txt' // Install dependencies
+                sh 'python3 -m venv $VENV'
+                sh './$VENV/bin/pip install --upgrade pip'
+                sh './$VENV/bin/pip install -r requirements.txt'
             }
         }
-        stage('Run App') {
+
+        stage('Run Migrations') {
             steps {
-                sh './venv/bin/python app.py' // Run your app
+                sh './$VENV/bin/python manage.py migrate'
+            }
+        }
+
+        stage('Run Server') {
+            steps {
+                sh './$VENV/bin/python manage.py runserver 0.0.0.0:8000 &'
             }
         }
     }
