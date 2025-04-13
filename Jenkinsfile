@@ -1,17 +1,23 @@
 pipeline {
     agent any
-
     stages {
-        stage('Install Dependencies') {
+        stage('Checkout SCM') {
             steps {
-                sh 'pip install -r requirements.txt'
+                checkout scm
             }
         }
-
+        stage('Set up Virtual Environment') {
+            steps {
+                sh 'python3 -m venv venv' // Create virtual environment
+                sh './venv/bin/pip install --upgrade pip' // Upgrade pip
+                sh './venv/bin/pip install -r requirements.txt' // Install dependencies
+            }
+        }
         stage('Run App') {
             steps {
-                sh 'python manage.py runserver 0.0.0.0:8000'
+                sh './venv/bin/python app.py' // Run your app
             }
         }
     }
 }
+
